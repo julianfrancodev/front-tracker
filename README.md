@@ -1,73 +1,60 @@
-# React + TypeScript + Vite
+# Frontend TrackRoute - LogisColombia
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este repositorio contiene la implementación del frontend para el sistema de gestión y monitoreo logístico **TrackRoute**, desarrollado como parte de la prueba técnica para LogisColombia.
 
-Currently, two official plugins are available:
+## 🚀 Guía de Inicio Rápido
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Siga estos pasos para levantar el entorno de desarrollo local:
 
-## React Compiler
+1. **Instalación de dependencias:**
+   ```bash
+   npm install
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. **Configuración de variables de entorno:**
+   Cree un archivo `.env` en la raíz del proyecto basándose en `.env.example`:
+   ```env
+   VITE_API_URL=http://localhost:3000/api
+   ```
 
-## Expanding the ESLint configuration
+3. **Ejecución en desarrollo:**
+   ```bash
+   npm run dev
+   ```
+   La aplicación estará disponible en [http://localhost:5173](http://localhost:5173).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🏗️ Decisiones de Arquitectura
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Selección del Stack: React vs Angular
+Aunque el requerimiento inicial sugería Angular 17+, se tomó la decisión estratégica de utilizar **React 18 + Vite** debido al **timebox estricto de 24 horas**. 
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Justificación técnica:**
+*   **Velocidad de Iteración:** El ecosistema de React, potenciado por la velocidad de compilación de **Vite**, permite un ciclo de *feedback* instantáneo (HMR), lo cual fue crítico para entregar un MVP completo (CRUD + Polling + Auth) en menos de un día.
+*   **Flexibilidad Arquitectónica:** React permitió una estructura de componentes más ligera, facilitando la creación de piezas reutilizables como el `DataTable` con renderizado dinámico.
+*   **Rendimiento:** Se implementó **Lazy Loading** para la división de código y una gestión eficiente del Virtual DOM para asegurar que el Dashboard mantenga un rendimiento óptimo bajo carga de datos.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Estrategia de Manejo de Estado: Zustand
+Para la gestión del estado global (Autenticación y Sesión), se eligió **Zustand**.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+*   **Equivalente Pragmático:** Zustand cumple con el requisito de ser una solución de **estado reactivo**, funcionando como el equivalente pragmático a *Signals* o *RxJS* en el ecosistema React.
+*   **Reducción de Boilerplate:** A diferencia de Redux o el uso intensivo de RxJS en Angular, Zustand permite definir stores en pocas líneas de código sin sacrificar la reactividad o la predictibilidad del estado. Esta simplicidad fue el factor determinante para cumplir con el plazo de entrega sin comprometer la calidad técnica.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## 📋 Supuestos Asumidos
+
+1.  **Enfoque de Dispositivos:** La interfaz ha sido diseñada priorizando la **operatividad en Escritorio y Tablets**, considerando que los operadores logísticos y administradores suelen trabajar en estos dispositivos para la gestión de rutas.
+2.  **Seguridad y Sesión:** Se asume el uso de **JWT (JSON Web Tokens)** para la comunicación con el API. Se implementaron interceptores de Axios para la inyección automática del token y el manejo global de errores 401 (Unauthorized).
+3.  **Monitoreo en Tiempo Real:** Dado el alcance del MVP, el rastreo se implementó mediante un sistema de **Polling optimizado** cada 30 segundos, simulando la actualización constante de coordenadas GPS.
+
+---
+
+## 🛠️ Tecnologías Principales
+*   **React 18** (UI Library)
+*   **Vite** (Build Tool)
+*   **TypeScript** (Type Safety)
+*   **Zustand** (State Management)
+*   **Axios** (HTTP Client)
+*   **React Router 6** (Routing)
