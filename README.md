@@ -21,6 +21,12 @@ Siga estos pasos para levantar el entorno de desarrollo local:
    ```bash
    npm run dev
    ```
+
+4. **Pruebas y Cobertura:**
+   ```bash
+   npm run test          # Ejecutar tests
+   npm run test:coverage # Ver reporte de cobertura (>80%)
+   ```
    La aplicación estará disponible en [http://localhost:5173](http://localhost:5173).
 
 ---
