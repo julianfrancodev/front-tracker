@@ -26,7 +26,7 @@ describe('authStore', () => {
   });
 
   it('should logout and clear data', () => {
-    useAuthStore.getState().setAuth('token', { id: 1 } as any);
+    useAuthStore.getState().setAuth('token', { id: 1, username: 'user', role: 'ADMIN' });
     useAuthStore.getState().logout();
     
     const state = useAuthStore.getState();

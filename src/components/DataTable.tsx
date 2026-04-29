@@ -1,26 +1,26 @@
 import React from 'react';
 
-export interface Column {
+export interface Column<T = unknown> {
   key: string;
   label: string;
-  render?: (value: any, record: any) => React.ReactNode;
+  render?: (value: unknown, record: T) => React.ReactNode;
 }
 
-interface DataTableProps {
-  columns: Column[];
-  data: any[];
+interface DataTableProps<T = unknown> {
+  columns: Column<T>[];
+  data: T[];
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
 }
 
-const DataTable: React.FC<DataTableProps> = ({
+function DataTable<T extends { id?: string | number }>({
   columns,
   data,
   currentPage,
   totalPages,
   onPageChange
-}) => {
+}: DataTableProps<T>) {
   return (
     <div style={containerStyle}>
       <div style={tableWrapperStyle}>
@@ -45,8 +45,8 @@ const DataTable: React.FC<DataTableProps> = ({
                   {columns.map((col) => (
                     <td key={`${row.id || rowIndex}-${col.key}`} style={tdStyle}>
                       {col.render 
-                        ? col.render(row[col.key], row) 
-                        : row[col.key]}
+                        ? col.render((row as Record<string, unknown>)[col.key], row) 
+                        : (row as Record<string, unknown>)[col.key] as React.ReactNode}
                     </td>
                   ))}
                 </tr>
@@ -77,7 +77,7 @@ const DataTable: React.FC<DataTableProps> = ({
       </div>
     </div>
   );
-};
+}
 
 // Styles
 const containerStyle: React.CSSProperties = {

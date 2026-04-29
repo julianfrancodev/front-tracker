@@ -3,7 +3,7 @@ import type { PaginatedResponse, Route } from '../types/route.types';
 
 export const routeService = {
   getRoutes: async (page: number, limit: number = 20, origin_city?: string, status?: string): Promise<PaginatedResponse> => {
-    const params: Record<string, any> = { page, limit };
+    const params: Record<string, string | number | undefined> = { page, limit };
     
     if (origin_city) params.origin_city = origin_city;
     if (status) params.status = status;

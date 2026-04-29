@@ -29,11 +29,12 @@ const Login: React.FC = () => {
 
       setAuth(token, user);
       navigate('/');
-    } catch (err: any) {
-      if (err.response?.status === 401) {
+    } catch (err: unknown) {
+      const error = err as { response?: { status?: number; data?: { message?: string } } };
+      if (error.response?.status === 401) {
         setError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
       } else {
-        setError(err.response?.data?.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
+        setError(error.response?.data?.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
       }
     } finally {
       setLoading(false);
