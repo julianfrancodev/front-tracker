@@ -15,6 +15,12 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    if (!username.trim() || !password.trim()) {
+      setError('Por favor, ingresa tu usuario y contraseña.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -24,7 +30,11 @@ const Login: React.FC = () => {
       setAuth(token, user);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
+      if (err.response?.status === 401) {
+        setError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
+      } else {
+        setError(err.response?.data?.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
+      }
     } finally {
       setLoading(false);
     }
