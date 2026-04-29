@@ -29,6 +29,15 @@ Siga estos pasos para levantar el entorno de desarrollo local:
    ```
    La aplicación estará disponible en [http://localhost:5173](http://localhost:5173).
 
+## 🔑 Credenciales de Prueba
+
+Para probar las funcionalidades y el control de acceso por roles (RBAC), puede usar las siguientes cuentas:
+
+| Rol | Usuario | Contraseña |
+| :--- | :--- | :--- |
+| **Administrador** | `admin` | `admin123` |
+| **Operador** | `operador` | `operador123` |
+
 ---
 
 ## 🏛️ Arquitectura del Sistema
