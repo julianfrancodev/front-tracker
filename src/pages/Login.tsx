@@ -73,7 +73,18 @@ const Login: React.FC = () => {
             />
           </div>
 
-          {error && <div style={errorStyle}>{error}</div>}
+          <div style={{ minHeight: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{
+              ...errorStyle,
+              opacity: error ? 1 : 0,
+              transform: error ? 'translateY(0)' : 'translateY(-10px)',
+              transition: 'all 0.3s ease-in-out',
+              pointerEvents: error ? 'auto' : 'none',
+              width: '100%'
+            }}>
+              {error}
+            </div>
+          </div>
 
           <button
             type="submit"
