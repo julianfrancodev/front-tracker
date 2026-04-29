@@ -20,6 +20,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     set({ token: null, user: null });
-    window.location.href = '/login';
+    // El redirect ocurre automáticamente vía ProtectedRoute / Navigate
   },
 }));
