@@ -1,29 +1,28 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
+import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
 const api = axios.create({
   baseURL: 'http://localhost:3000/api',
 });
 
+// Request Interceptor: Add Authorization header
 api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
+  (config) => {
     const token = useAuthStore.getState().token;
-    if (token && config.headers) {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
+// Response Interceptor: Handle 401 Unauthorized
 api.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  (error: AxiosError) => {
+  (response) => response,
+  (error) => {
     if (error.response?.status === 401) {
       useAuthStore.getState().logout();
-      window.location.href = '/login';
     }
     return Promise.reject(error);
   }
