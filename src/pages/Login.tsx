@@ -1,138 +1,165 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore, type User } from '../store/authStore';
 import api from '../services/api';
-
-interface LoginResponse {
-  token: string;
-  user: User;
-}
+import { useAuthStore } from '../store/authStore';
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const setAuth = useAuthStore((state) => state.setAuth);
   const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
+    setLoading(true);
+
     try {
-      const response = await api.post<LoginResponse>('/auth/login', { username, password });
-      setAuth(response.data.token, response.data.user);
+      const response = await api.post('/auth/login', { username, password });
+      const { token, user } = response.data;
+
+      setAuth(token, user);
       navigate('/');
-    } catch (err: unknown) {
-      // Usamos el tipado any temporalmente o intentamos acceder de forma segura:
-      const errorResponse = err as { response?: { data?: { message?: string } } };
-      setError(errorResponse.response?.data?.message || 'Error al iniciar sesión. Verifica tus credenciales.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh', 
-      backgroundColor: 'var(--bg-color)',
-    }}>
-      <form onSubmit={handleSubmit} style={{ 
-        padding: '2.5rem', 
-        background: 'var(--card-bg)', 
-        borderRadius: 'var(--radius)', 
-        boxShadow: 'var(--shadow)', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        width: '350px',
-        border: '1px solid var(--border)'
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', color: 'var(--text-main)', marginBottom: '0.5rem' }}>Bienvenido</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Ingresa tus credenciales de logística</p>
-        </div>
+    <div style={containerStyle}>
+      <div style={cardStyle}>
+        <h2 style={titleStyle}>Logística Pro</h2>
+        <p style={subtitleStyle}>Inicia sesión para continuar</p>
 
-        {error && (
-          <div style={{ 
-            color: 'var(--error-text)', 
-            marginBottom: '1.5rem', 
-            textAlign: 'center', 
-            fontSize: '0.85rem', 
-            padding: '0.75rem', 
-            backgroundColor: 'var(--error-bg)', 
-            borderRadius: '8px',
-            border: '1px solid #fecaca'
-          }}>
-            {error}
+        <form onSubmit={handleSubmit} style={formStyle}>
+          <div style={inputGroupStyle}>
+            <label htmlFor="username" style={labelStyle}>Usuario</label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              style={inputStyle}
+              required
+              placeholder="admin"
+            />
           </div>
-        )}
 
-        <div style={{ marginBottom: '1.25rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontSize: '0.85rem', fontWeight: '500' }}>Usuario</label>
-          <input 
-            type="text" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
-            required 
-            placeholder="nombre_usuario"
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem', 
-              borderRadius: '8px', 
-              border: '1px solid var(--border)', 
-              boxSizing: 'border-box',
-              outline: 'none',
-              fontSize: '0.95rem',
-              backgroundColor: '#fafafa'
+          <div style={inputGroupStyle}>
+            <label htmlFor="password" style={labelStyle}>Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={inputStyle}
+              required
+              placeholder="••••••••"
+            />
+          </div>
+
+          {error && <div style={errorStyle}>{error}</div>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              ...buttonStyle,
+              backgroundColor: loading ? '#ccc' : '#2563eb',
+              cursor: loading ? 'not-allowed' : 'pointer'
             }}
-          />
-        </div>
-
-        <div style={{ marginBottom: '2rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-main)', fontSize: '0.85rem', fontWeight: '500' }}>Contraseña</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
-            placeholder="••••••••"
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem', 
-              borderRadius: '8px', 
-              border: '1px solid var(--border)', 
-              boxSizing: 'border-box',
-              outline: 'none',
-              fontSize: '0.95rem',
-              backgroundColor: '#fafafa'
-            }}
-          />
-        </div>
-
-        <button 
-          type="submit" 
-          disabled={loading} 
-          style={{ 
-            padding: '0.85rem', 
-            backgroundColor: loading ? '#e2e8f0' : 'var(--primary)', 
-            color: '#0369a1', 
-            borderRadius: '8px', 
-            cursor: loading ? 'not-allowed' : 'pointer', 
-            fontWeight: '600',
-            fontSize: '1rem',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-          }}
-        >
-          {loading ? 'Validando...' : 'Entrar al Panel'}
-        </button>
-      </form>
+          >
+            {loading ? 'Cargando...' : 'Entrar'}
+          </button>
+        </form>
+      </div>
     </div>
   );
+};
+
+// Styles
+const containerStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  minHeight: '100vh',
+  backgroundColor: '#f3f4f6',
+  fontFamily: 'system-ui, -apple-system, sans-serif'
+};
+
+const cardStyle: React.CSSProperties = {
+  backgroundColor: '#ffffff',
+  padding: '2.5rem',
+  borderRadius: '1rem',
+  boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+  width: '100%',
+  maxWidth: '400px'
+};
+
+const titleStyle: React.CSSProperties = {
+  fontSize: '1.875rem',
+  fontWeight: 'bold',
+  color: '#111827',
+  textAlign: 'center',
+  marginBottom: '0.5rem'
+};
+
+const subtitleStyle: React.CSSProperties = {
+  color: '#6b7280',
+  textAlign: 'center',
+  marginBottom: '2rem'
+};
+
+const formStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '1.25rem'
+};
+
+const inputGroupStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5rem'
+};
+
+const labelStyle: React.CSSProperties = {
+  fontSize: '0.875rem',
+  fontWeight: '500',
+  color: '#374151'
+};
+
+const inputStyle: React.CSSProperties = {
+  padding: '0.75rem 1rem',
+  borderRadius: '0.5rem',
+  border: '1px solid #d1d5db',
+  fontSize: '1rem',
+  outline: 'none',
+  transition: 'border-color 0.2s'
+};
+
+const buttonStyle: React.CSSProperties = {
+  padding: '0.75rem',
+  borderRadius: '0.5rem',
+  border: 'none',
+  color: 'white',
+  fontSize: '1rem',
+  fontWeight: '600',
+  transition: 'background-color 0.2s',
+  marginTop: '0.5rem'
+};
+
+const errorStyle: React.CSSProperties = {
+  color: '#dc2626',
+  fontSize: '0.875rem',
+  textAlign: 'center',
+  backgroundColor: '#fee2e2',
+  padding: '0.5rem',
+  borderRadius: '0.375rem'
 };
 
 export default Login;
