@@ -14,26 +14,25 @@ const TrackingPanel: React.FC = () => {
     if (!id) return;
 
     const fetchTracking = async () => {
+      console.log('--- Iniciando fetch de tracking para ID:', id, '---');
       try {
-        const result = await trackingService.getTracking(id);
-        setData(result);
+        const response: any = await trackingService.getTracking(id);
+        
+        // Manejar el caso donde la API devuelve { success, data } o solo la data
+        const trackingData: TrackingData = response.data ? response.data : response;
+        
+        console.log('Datos de monitoreo recibidos:', trackingData);
+        setData(trackingData);
         setLastFetch(new Date());
       } catch (error) {
-        console.error('Error fetching tracking data:', error);
+        console.error('Error fatal en fetchTracking:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    // Llamada inicial
     fetchTracking();
-
-    // Configurar polling cada 30 segundos
-    const intervalId = setInterval(() => {
-      fetchTracking();
-    }, 30000);
-
-    // Limpieza para evitar memory leaks
+    const intervalId = setInterval(fetchTracking, 30000);
     return () => clearInterval(intervalId);
   }, [id]);
 
@@ -41,52 +40,53 @@ const TrackingPanel: React.FC = () => {
     <Layout>
       <div style={containerStyle}>
         <div style={headerStyle}>
-          <h1 style={titleStyle}>Monitoreo de Ruta #{id}</h1>
-          <Link to="/" style={backLinkStyle}>Volver al Dashboard</Link>
+          <h1 style={titleStyle}>Ruta #{id} - En Vivo</h1>
+          <Link to="/" style={backLinkStyle}>← Volver al Dashboard</Link>
         </div>
 
         {loading && !data ? (
-          <div style={loadingStyle}>Cargando datos de monitoreo...</div>
+          <div style={loadingStyle}>Sincronizando con GPS...</div>
         ) : data ? (
           <div style={cardStyle}>
             <div style={infoGridStyle}>
               <div style={infoItemStyle}>
-                <span style={labelStyle}>Estado</span>
-                <span style={valueStyle}>{data.status}</span>
+                <span style={labelStyle}>Última Ubicación</span>
+                <span style={valueStyle}>{data.lastLocation}</span>
               </div>
               <div style={infoItemStyle}>
-                <span style={labelStyle}>Ubicación Actual</span>
-                <span style={valueStyle}>{data.current_location}</span>
+                <span style={labelStyle}>Tiempo Restante</span>
+                <span style={valueStyle}>{data.etaMinutes} minutos</span>
               </div>
               <div style={infoItemStyle}>
-                <span style={labelStyle}>ETA (Estimado)</span>
-                <span style={valueStyle}>{data.estimated_time_arrival}</span>
+                <span style={labelStyle}>ID de Seguimiento</span>
+                <span style={valueStyle}>{data.routeId}</span>
               </div>
             </div>
 
             <div style={progressContainerStyle}>
               <div style={progressHeaderStyle}>
-                <span style={progressLabelStyle}>Progreso del viaje</span>
-                <span style={progressPercentageStyle}>{data.progress_percentage}%</span>
+                <span style={progressLabelStyle}>Progreso de la Entrega</span>
+                <span style={progressPercentageStyle}>{data.progressPercent}%</span>
               </div>
               <div style={progressBarBackgroundStyle}>
                 <div 
                   style={{ 
                     ...progressBarFillStyle, 
-                    width: `${data.progress_percentage}%` 
+                    width: `${data.progressPercent}%` 
                   }} 
                 />
               </div>
             </div>
 
-            {lastFetch && (
-              <div style={footerStyle}>
-                Última actualización: {lastFetch.toLocaleTimeString()}
-              </div>
-            )}
+            <div style={footerStyle}>
+              {lastFetch && (
+                <span>Sincronizado: {lastFetch.toLocaleTimeString()}</span>
+              )}
+              <span style={{ marginLeft: '1rem', color: '#10b981' }}>● Señal Activa</span>
+            </div>
           </div>
         ) : (
-          <div style={errorStyle}>No se pudo cargar la información de la ruta.</div>
+          <div style={errorStyle}>Error: No se encontró información de GPS para esta ruta.</div>
         )}
       </div>
     </Layout>
@@ -94,123 +94,23 @@ const TrackingPanel: React.FC = () => {
 };
 
 // Styles
-const containerStyle: React.CSSProperties = {
-  maxWidth: '800px',
-  margin: '0 auto'
-};
-
-const headerStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: '2rem'
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: '1.875rem',
-  color: '#1e293b',
-  margin: 0
-};
-
-const backLinkStyle: React.CSSProperties = {
-  color: '#2563eb',
-  textDecoration: 'none',
-  fontWeight: '500',
-  fontSize: '0.9rem'
-};
-
-const cardStyle: React.CSSProperties = {
-  backgroundColor: 'white',
-  borderRadius: '1rem',
-  padding: '2rem',
-  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-  border: '1px solid #e2e8f0'
-};
-
-const infoGridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-  gap: '1.5rem',
-  marginBottom: '2rem'
-};
-
-const infoItemStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '0.5rem'
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: '0.875rem',
-  color: '#64748b',
-  fontWeight: '500',
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em'
-};
-
-const valueStyle: React.CSSProperties = {
-  fontSize: '1.25rem',
-  color: '#0f172a',
-  fontWeight: '600'
-};
-
-const progressContainerStyle: React.CSSProperties = {
-  marginTop: '2rem',
-  paddingTop: '2rem',
-  borderTop: '1px solid #f1f5f9'
-};
-
-const progressHeaderStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  marginBottom: '0.75rem'
-};
-
-const progressLabelStyle: React.CSSProperties = {
-  fontWeight: '500',
-  color: '#334155'
-};
-
-const progressPercentageStyle: React.CSSProperties = {
-  fontWeight: 'bold',
-  color: '#2563eb'
-};
-
-const progressBarBackgroundStyle: React.CSSProperties = {
-  height: '1rem',
-  backgroundColor: '#e2e8f0',
-  borderRadius: '9999px',
-  overflow: 'hidden'
-};
-
-const progressBarFillStyle: React.CSSProperties = {
-  height: '100%',
-  backgroundColor: '#2563eb',
-  borderRadius: '9999px',
-  transition: 'width 1s ease-in-out'
-};
-
-const footerStyle: React.CSSProperties = {
-  marginTop: '1.5rem',
-  textAlign: 'right',
-  fontSize: '0.75rem',
-  color: '#94a3b8'
-};
-
-const loadingStyle: React.CSSProperties = {
-  textAlign: 'center',
-  padding: '3rem',
-  color: '#64748b',
-  fontSize: '1.1rem'
-};
-
-const errorStyle: React.CSSProperties = {
-  textAlign: 'center',
-  padding: '2rem',
-  backgroundColor: '#fef2f2',
-  color: '#ef4444',
-  borderRadius: '0.5rem',
-  border: '1px solid #fca5a5'
-};
+const containerStyle: React.CSSProperties = { maxWidth: '800px', margin: '0 auto', padding: '1rem' };
+const headerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' };
+const titleStyle: React.CSSProperties = { fontSize: '1.875rem', color: '#1e293b', margin: 0, fontWeight: '700' };
+const backLinkStyle: React.CSSProperties = { color: '#64748b', textDecoration: 'none', fontWeight: '500', fontSize: '0.875rem' };
+const cardStyle: React.CSSProperties = { backgroundColor: 'white', borderRadius: '1.25rem', padding: '2.5rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', border: '1px solid #f1f5f9' };
+const infoGridStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '2rem', marginBottom: '2.5rem' };
+const infoItemStyle: React.CSSProperties = { display: 'flex', flexDirection: 'column', gap: '0.5rem' };
+const labelStyle: React.CSSProperties = { fontSize: '0.75rem', color: '#94a3b8', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em' };
+const valueStyle: React.CSSProperties = { fontSize: '1.25rem', color: '#0f172a', fontWeight: '700' };
+const progressContainerStyle: React.CSSProperties = { marginTop: '2rem', paddingTop: '2.5rem', borderTop: '2px solid #f8fafc' };
+const progressHeaderStyle: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'flex-end' };
+const progressLabelStyle: React.CSSProperties = { fontWeight: '600', color: '#475569', fontSize: '1rem' };
+const progressPercentageStyle: React.CSSProperties = { fontSize: '1.5rem', fontWeight: '800', color: '#2563eb' };
+const progressBarBackgroundStyle: React.CSSProperties = { height: '1.25rem', backgroundColor: '#f1f5f9', borderRadius: '1rem', overflow: 'hidden', border: '1px solid #e2e8f0' };
+const progressBarFillStyle: React.CSSProperties = { height: '100%', backgroundColor: '#2563eb', borderRadius: '1rem', transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)', backgroundImage: 'linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent)' };
+const footerStyle: React.CSSProperties = { marginTop: '2.5rem', display: 'flex', justifyContent: 'flex-end', fontSize: '0.75rem', color: '#94a3b8', fontWeight: '500' };
+const loadingStyle: React.CSSProperties = { textAlign: 'center', padding: '5rem', color: '#64748b', fontSize: '1.25rem', fontWeight: '500' };
+const errorStyle: React.CSSProperties = { textAlign: 'center', padding: '3rem', backgroundColor: '#fff1f2', color: '#be123c', borderRadius: '1rem', border: '1px solid #fecdd3', fontWeight: '600' };
 
 export default TrackingPanel;

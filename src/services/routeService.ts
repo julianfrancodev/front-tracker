@@ -8,6 +8,8 @@ export const routeService = {
     if (origin_city) params.origin_city = origin_city;
     if (status) params.status = status;
 
+    console.log('API Request Params:', params);
+
     const response = await api.get<PaginatedResponse>('/routes', { params });
     return response.data;
   },
