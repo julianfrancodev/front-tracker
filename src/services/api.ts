@@ -21,7 +21,8 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    // No cerrar sesión automáticamente si el error 401 viene del endpoint de login
+    if (error.response?.status === 401 && !error.config.url?.includes('/auth/login')) {
       useAuthStore.getState().logout();
     }
     return Promise.reject(error);
