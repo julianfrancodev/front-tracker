@@ -1,0 +1,52 @@
+:root {
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --primary: #bae6fd; /* Soft Blue Pastel */
+  --primary-hover: #7dd3fc;
+  --secondary: #fef9c3; /* Soft Yellow Pastel */
+  --accent: #f5f3ff; /* Very soft lavender */
+  --error-bg: #fff1f2;
+  --error-text: #e11d48;
+  --success-bg: #f0fdf4;
+  --success-text: #16a34a;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --radius: 12px;
+  
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text-main);
+  background-color: var(--bg-color);
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+}
+
+h1, h2, h3 {
+  color: var(--text-main);
+  margin: 0;
+  font-weight: 600;
+}
+
+button {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+}
+
+input {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
