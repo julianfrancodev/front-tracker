@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, Mocked } from 'vitest';
 import { routeService } from '../services/routeService';
 import api from '../services/api';
+import type { Route } from '../types/route.types';
 
 vi.mock('../services/api', () => ({
   default: {
@@ -11,10 +12,12 @@ vi.mock('../services/api', () => ({
   },
 }));
 
+const mockedApi = api as Mocked<typeof api>;
+
 describe('routeService', () => {
   it('should fetch routes with correct params', async () => {
     const mockData = { data: [], total: 0, page: 1, totalPages: 1 };
-    (api.get as any).mockResolvedValue({ data: mockData });
+    mockedApi.get.mockResolvedValue({ data: mockData });
 
     const result = await routeService.getRoutes(1, 20, 'Bogotá');
 
@@ -29,8 +32,8 @@ describe('routeService', () => {
   });
 
   it('should create a route', async () => {
-    const newRoute = { origin_city: 'A', destination_city: 'B' } as any;
-    (api.post as any).mockResolvedValue({ data: { id: 1, ...newRoute } });
+    const newRoute = { origin_city: 'A', destination_city: 'B', carrier: 'C' } as Omit<Route, 'id'>;
+    mockedApi.post.mockResolvedValue({ data: { id: 1, ...newRoute } });
 
     const result = await routeService.createRoute(newRoute);
 

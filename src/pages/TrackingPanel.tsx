@@ -16,10 +16,7 @@ const TrackingPanel: React.FC = () => {
     const fetchTracking = async () => {
       console.log('--- Iniciando fetch de tracking para ID:', id, '---');
       try {
-        const response: any = await trackingService.getTracking(id);
-        
-        // Manejar el caso donde la API devuelve { success, data } o solo la data
-        const trackingData: TrackingData = response.data ? response.data : response;
+        const trackingData = await trackingService.getTracking(id);
         
         console.log('Datos de monitoreo recibidos:', trackingData);
         setData(trackingData);

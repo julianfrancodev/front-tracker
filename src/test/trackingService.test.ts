@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, Mocked } from 'vitest';
 import { trackingService } from '../services/trackingService';
 import api from '../services/api';
 
@@ -7,6 +7,8 @@ vi.mock('../services/api', () => ({
     get: vi.fn(),
   },
 }));
+
+const mockedApi = api as Mocked<typeof api>;
 
 describe('trackingService', () => {
   it('should fetch tracking data', async () => {
@@ -17,7 +19,7 @@ describe('trackingService', () => {
       etaMinutes: 10,
       timestamp: '2026-04-29T00:00:00Z'
     };
-    (api.get as any).mockResolvedValue({ data: mockTracking });
+    mockedApi.get.mockResolvedValue({ data: mockTracking });
 
     const result = await trackingService.getTracking('1');
 

@@ -82,7 +82,10 @@ const Dashboard: React.FC = () => {
   }, [currentPage, debouncedOrigin]);
 
   useEffect(() => {
-    fetchRoutes();
+    const loadRoutes = async () => {
+      await fetchRoutes();
+    };
+    loadRoutes();
   }, [fetchRoutes]);
 
   // Lógica de filtrado Front
@@ -135,7 +138,8 @@ const Dashboard: React.FC = () => {
       }
       setIsModalOpen(false);
       fetchRoutes();
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } }; message?: string };
       console.error('❌ ERROR:', error.response?.data || error.message);
       setFormError(error.response?.data?.message || 'Error al guardar los datos');
     }
@@ -146,7 +150,7 @@ const Dashboard: React.FC = () => {
       try {
         await routeService.deleteRoute(id);
         fetchRoutes();
-      } catch (error) {
+      } catch {
         alert('Error al eliminar');
       }
     }
